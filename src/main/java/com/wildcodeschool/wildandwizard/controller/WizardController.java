@@ -10,7 +10,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -30,7 +29,6 @@ public class WizardController {
     public String getWizards(Model out) {
 
         out.addAttribute("wizards", wizardRepository.findAll());
-
         return "wizards";
     }
 
@@ -41,24 +39,25 @@ public class WizardController {
         Optional<Wizard> optionalWizard = wizardRepository.findById(idWizard);
         Wizard wizard = new Wizard();
         if (optionalWizard.isPresent()) {
+
             wizard = optionalWizard.get();
         }
         out.addAttribute("wizard", wizard);
         out.addAttribute("allCourses", courseRepository.findAll());
-
-        // call the method getCourses in Wizard
         List<Course> courses = new ArrayList<>();
         Method method = getMethod(wizard, "getCourses",
                 new Class[]{});
         if (method != null) {
+
             try {
+
                 courses = (List<Course>) method.invoke(wizard);
             } catch (IllegalAccessException | InvocationTargetException e) {
+
                 e.printStackTrace();
             }
         }
         out.addAttribute("wizardCourses", courses);
-
         return "register";
     }
 
@@ -68,38 +67,42 @@ public class WizardController {
 
         Optional<Wizard> optionalWizard = wizardRepository.findById(idWizard);
         if (optionalWizard.isPresent()) {
-            Wizard wizard = optionalWizard.get();
 
+            Wizard wizard = optionalWizard.get();
             Optional<Course> optionalCourse = courseRepository.findById(idCourse);
             if (optionalCourse.isPresent()) {
+
                 Course course = optionalCourse.get();
 
-                // call the method getCourses in Wizard
                 List<Course> courses;
                 Method method = getMethod(wizard, "getCourses",
                         new Class[]{});
                 if (method != null) {
+
                     try {
+
                         courses = (List<Course>) method.invoke(wizard);
                         courses.add(course);
                     } catch (IllegalAccessException | InvocationTargetException e) {
+
                         e.printStackTrace();
                     }
                 }
-
                 wizardRepository.save(wizard);
             }
         }
-
         return "redirect:/wizard/register?idWizard=" + idWizard;
     }
 
     public Method getMethod(Object obj, String methodName, Class[] args) {
+
         Method method;
         try {
+
             method = obj.getClass().getDeclaredMethod(methodName, args);
             return method;
         } catch (NoSuchMethodException e) {
+
             e.printStackTrace();
         }
         return null;
